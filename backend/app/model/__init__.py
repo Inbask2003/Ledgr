@@ -1,0 +1,1 @@
+from app.model.merchant import Merchant
