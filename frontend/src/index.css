@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root {
+  /* COLORS */
+  --background: #ffffff;
+  --foreground: #0f172a;
+
+  --primary: #7c3aed;
+  --primary-hover: #6d28d9;
+
+  --secondary: #f8fafc;
+
+  --border: #e2e8f0;
+  --muted: #64748b;
+
+  /* FONTS */
+  --font-sans:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  --font-mono:
+    "JetBrains Mono",
+    monospace;
+}
+
+/* DARK MODE */
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+
+  --secondary: #1e293b;
+
+  --border: #334155;
+  --muted: #94a3b8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
