@@ -1,9 +1,10 @@
 from app.model.merchant import Merchant
 from app.schema.merchant import MerchantCreate
 from app.repository.merchant import MerchantRepository
+from app.core.security import hash_password
 
 async def create_merchant(repo: MerchantRepository, merchant_data: MerchantCreate):
-    hashed_password = merchant_data.password
+    hashed_password = hash_password(merchant_data.password)
 
     merchant = Merchant(
         email=merchant_data.email, 
