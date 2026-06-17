@@ -11,10 +11,13 @@ asyncpg==0.30.0
 alembic==1.14.0    
 psycopg2-binary==2.9.9                                                                                                                                                                         
    
-# --- Auth ---                                                                                                                                                                              
+# --- Auth ---
 passlib[bcrypt]==1.7.4
 bcrypt==4.2.1
-pyjwt==2.10.1            
+pyjwt==2.10.1
+
+# --- Webhooks ---
+httpx==0.28.1
 
 # --- Test ---
 pytest==8.3.4

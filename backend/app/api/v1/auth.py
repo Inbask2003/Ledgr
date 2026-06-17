@@ -1,27 +1,28 @@
 from fastapi import APIRouter, Depends
-from app.schema.auth import AuthBase
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.session import get_db
+
+from app.schema.auth import AuthBase, TokenOut
+from app.core.dependencies import get_merchant_repo
 from app.repository.merchant import MerchantRepository
-from app.core.security import hash_password, verify_password
+from app.core.security import verify_password, hash_password
 from app.core.token import create_access_token
+from app.core.exceptions import AuthError
 from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-def get_merchant_repo(db: AsyncSession = Depends(get_db)):
-    return MerchantRepository(db)
+_DUMMY_HASH = hash_password("ledgr-timing-guard")
 
-@router.post("/login")
-async def login(user_auth: AuthBase, repo: MerchantRepository = Depends(get_merchant_repo)):
-    email, password = user_auth
-    hashed_password = hash_password(password)
 
-    if not verify_password(password, hashed_password):
-        logger.warning(f"not a valid password for {email} email")
-        return None
-    
-    access_token = create_access_token(email)
-    return {"access_token": access_token}
+@router.post("/login", response_model=TokenOut)
+async def login(credentials: AuthBase, repo: MerchantRepository = Depends(get_merchant_repo)):
+    merchant = await repo.get_by_email(credentials.email)
+
+    stored_hash = merchant.password_hash if merchant else _DUMMY_HASH
+    if not verify_password(credentials.password, stored_hash) or not merchant:
+        logger.warning("failed login attempt for %s", credentials.email)
+        raise AuthError("Incorrect email or password")
+
+    access_token = create_access_token(merchant.email)
+    return TokenOut(access_token=access_token)

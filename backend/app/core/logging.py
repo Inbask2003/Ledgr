@@ -41,7 +41,12 @@ def setup_logging():
                 "propagate": False,
             },
             "uvicorn.access": {
-                "level": LOG_LEVEL,
+                "level": "WARNING",
+                "handlers": ["console"],
+                "propagate": False,
+            },
+            "passlib": {
+                "level": "ERROR",
                 "handlers": ["console"],
                 "propagate": False,
             },
