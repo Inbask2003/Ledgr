@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
-from uuid import UUID
-
-from sqlalchemy.exc import IntegrityError
+from uuid import UUID, uuid4
 
 from app.core.exceptions import InvalidStateError, NotFoundError
 from app.model.enums import LedgerAccount, LedgerDirection, PaymentStatus
@@ -22,32 +20,23 @@ logger = get_logger(__name__)
 async def create_payment(
     repo: PaymentRepository, merchant: Merchant, data: PaymentCreate
 ) -> Payment:
-    if data.idempotency_key:
-        existing = await repo.get_by_idempotency_key(merchant.id, data.idempotency_key)
-        if existing:
-            return existing
+    values = {
+        "id": uuid4(),
+        "merchant_id": merchant.id,
+        "amount": data.amount,
+        "amount_refunded": 0,
+        "currency": data.currency,
+        "description": data.description,
+        "status": PaymentStatus.CREATED,
+        "idempotency_key": data.idempotency_key,
+    }
 
-    payment = Payment(
-        merchant_id=merchant.id,
-        amount=data.amount,
-        currency=data.currency,
-        description=data.description,
-        idempotency_key=data.idempotency_key,
-        status=PaymentStatus.CREATED,
-    )
+    if not data.idempotency_key:
+        return await repo.insert(values)
 
-    try:
-        await repo.add(payment)
-        await repo.commit()
-    except IntegrityError:
-        await repo.rollback()
-        if data.idempotency_key:
-            existing = await repo.get_by_idempotency_key(merchant.id, data.idempotency_key)
-            if existing:
-                return existing
-        raise
-
-    await repo.refresh(payment)
+    payment = await repo.insert_if_absent(values)
+    if payment is None:
+        payment = await repo.get_by_idempotency_key(merchant.id, data.idempotency_key)
     return payment
 
 

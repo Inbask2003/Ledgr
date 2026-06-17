@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import func, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.model.enums import PaymentStatus
@@ -12,10 +13,27 @@ class PaymentRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def add(self, payment: Payment) -> Payment:
-        self.db.add(payment)
-        await self.db.flush()
-        return payment
+    async def insert(self, values: dict) -> Payment:
+        stmt = pg_insert(Payment).values(**values).returning(Payment.id)
+        result = await self.db.execute(stmt)
+        await self.db.commit()
+        return await self.get(values["merchant_id"], result.scalar_one())
+
+    async def insert_if_absent(self, values: dict) -> Payment | None:
+        # Race-free idempotency: the database decides the winner. A loser gets no
+        # row back (DO NOTHING) and the service falls back to reading the winner.
+        stmt = (
+            pg_insert(Payment)
+            .values(**values)
+            .on_conflict_do_nothing(index_elements=["merchant_id", "idempotency_key"])
+            .returning(Payment.id)
+        )
+        result = await self.db.execute(stmt)
+        await self.db.commit()
+        inserted_id = result.scalar_one_or_none()
+        if inserted_id is None:
+            return None
+        return await self.get(values["merchant_id"], inserted_id)
 
     async def get(self, merchant_id: UUID, payment_id: UUID) -> Payment | None:
         stmt = select(Payment).where(
@@ -84,6 +102,3 @@ class PaymentRepository:
 
     async def refresh(self, payment: Payment) -> None:
         await self.db.refresh(payment)
-
-    async def rollback(self) -> None:
-        await self.db.rollback()
