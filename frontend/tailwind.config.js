@@ -10,6 +10,7 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        card: "var(--card)",
 
         primary: {
           DEFAULT: "var(--primary)",
@@ -20,6 +21,10 @@ export default {
 
         border: "var(--border)",
         muted: "var(--muted)",
+      },
+      boxShadow: {
+        card: "0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.06)",
+        elevated: "0 10px 30px -12px rgba(15, 23, 42, 0.25)",
       },
     },
   },
