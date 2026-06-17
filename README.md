@@ -176,8 +176,7 @@ python -m app.jobs.expire      # expire created payments older than 15 minutes
   pretending otherwise.
 - **`authorized`/`settled` are collapsed into `captured`** while the processor is
   mocked; they come back when a real processor is wired in.
-- See [ROADMAP.md](ROADMAP.md) for what's built and what's next (hardening:
-  rate-limit tuning, app metrics, CI/CD to a live environment).
+- See [ROADMAP.md](ROADMAP.md) for what's built and what's next.
 
 ## License
 
