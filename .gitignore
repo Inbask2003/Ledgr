@@ -1,3 +1,7 @@
 *venv/
 *__pycache__
 *.env
+
+# Local-only notes (not published)
+CLAUDE.md
+ROADMAP.md
