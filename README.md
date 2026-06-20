@@ -92,8 +92,6 @@ backend/app/
 frontend/src/  React 19 + Tailwind dashboard (lib, context, components, pages)
 ```
 
-Each folder has a `CLAUDE.md` documenting its conventions.
-
 ## Quickstart
 
 ### With Docker (one command)
@@ -176,7 +174,6 @@ python -m app.jobs.expire      # expire created payments older than 15 minutes
   pretending otherwise.
 - **`authorized`/`settled` are collapsed into `captured`** while the processor is
   mocked; they come back when a real processor is wired in.
-- See [ROADMAP.md](ROADMAP.md) for what's built and what's next.
 
 ## License
 
